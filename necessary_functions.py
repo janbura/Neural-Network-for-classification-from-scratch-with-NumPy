@@ -79,7 +79,7 @@ def gradient_descent(X, Y, learning_rate, iterations):
         dW1, db1, dW2, db2 = backward_prop(Z1, A1, Z2, A2, W1, W2, X, Y)
         W1, b1, W2, b2 = update_params(W1, b1, W2, b2, dW1, db1, dW2, db2, learning_rate)
 
-        if i % 100 == 0:  # Print every 10 iterations
+        if i % 100 == 0:  
             predictions = get_predictions(A2)
             accuracy = get_accuracy(predictions, Y)
             print(f"Iteration {i} - Accuracy: {accuracy:.4f}")
@@ -95,33 +95,33 @@ def gradient_descent(X, Y, learning_rate, iterations):
 class PyTorchModel(nn.Module):
     def __init__(self):
         super(PyTorchModel, self).__init__()
-        self.fc1 = nn.Linear(784, 10)  # First layer (Input: 784, Hidden: 10)
-        self.fc2 = nn.Linear(10, 10)  # Second layer (Hidden: 10, Output: 10)
+        self.fc1 = nn.Linear(784, 10)
+        self.fc2 = nn.Linear(10, 10)
 
     def forward(self, x):
         x = self.fc1(x)
-        x = torch.relu(x)  # Apply ReLU
+        x = torch.relu(x)
         x = self.fc2(x)
-        return torch.softmax(x, dim=1)  # Apply softmax
+        return torch.softmax(x, dim=1)
 
 
 def train_pytorch_model(model, train_loader, epochs=100, learning_rate=0.1):
-    criterion = nn.CrossEntropyLoss()  # Loss function
-    optimizer = optim.SGD(model.parameters(), lr=learning_rate)  # SGD Optimizer
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.SGD(model.parameters(), lr=learning_rate)
 
     accuracies = []
 
     for epoch in range(epochs):
         correct, total = 0, 0
         for images, labels in train_loader:
-            images = images.view(-1, 784)  # Flatten images
-            optimizer.zero_grad()  # Clear gradients
+            images = images.view(-1, 784)
+            optimizer.zero_grad()
 
-            outputs = model(images)  # Forward pass
-            loss = criterion(outputs, labels)  # Compute loss
+            outputs = model(images)
+            loss = criterion(outputs, labels)
 
-            loss.backward()  # Backpropagation
-            optimizer.step()  # Update weights
+            loss.backward()
+            optimizer.step()
 
             # Track accuracy
             _, predicted = torch.max(outputs, 1)
@@ -143,13 +143,11 @@ def train_pytorch_model(model, train_loader, epochs=100, learning_rate=0.1):
 
 #EVALUATION/VISUALISATION FUNCTIONS
 def visualize_samples(train_dataset, num_samples=10):
-    """
-    Visualizes a row of sample images from the dataset.
-    """
+
     fig, axes = plt.subplots(1, num_samples, figsize=(15, 3))
     for i in range(num_samples):
-        image, label = train_dataset[i]  # image is a tensor (1, 28, 28)
-        image = image.squeeze().numpy()  # Remove channel dimension and convert to NumPy
+        image, label = train_dataset[i]
+        image = image.squeeze().numpy()
         axes[i].imshow(image, cmap='gray')
         axes[i].set_title(f"Label: {label}")
         axes[i].axis('off')
@@ -157,18 +155,6 @@ def visualize_samples(train_dataset, num_samples=10):
     plt.show()
 
 def evaluate_numpy_model(W1, b1, W2, b2, X_test, Y_test):
-    """
-    Evaluates the NumPy model, prints accuracy, and returns predictions.
-
-    Args:
-        W1, b1, W2, b2: Trained model parameters.
-        X_test (np.ndarray): Test dataset features.
-        Y_test (np.ndarray): True labels.
-
-    Returns:
-        float: Accuracy
-        np.ndarray: Model predictions
-    """
     _, _, _, A2 = forward_prop(W1, b1, W2, b2, X_test.T)
     predictions = get_predictions(A2)
     accuracy = get_accuracy(predictions, Y_test)
@@ -177,29 +163,18 @@ def evaluate_numpy_model(W1, b1, W2, b2, X_test, Y_test):
 
 
 def evaluate_pytorch_model(model, test_loader):
-    """
-    Evaluates the PyTorch model, prints accuracy, and returns predictions.
-
-    Args:
-        model (torch.nn.Module): Trained PyTorch model.
-        test_loader (DataLoader): PyTorch DataLoader for test dataset.
-
-    Returns:
-        float: Accuracy
-        np.ndarray: Model predictions
-    """
     correct, total = 0, 0
     all_predictions = []
     all_labels = []
 
     with torch.no_grad():
         for images, labels in test_loader:
-            images = images.view(-1, 784)  # Flatten images
+            images = images.view(-1, 784)
             outputs = model(images)
             _, predicted = torch.max(outputs, 1)
 
-            all_predictions.extend(predicted.numpy())  # Collect predictions
-            all_labels.extend(labels.numpy())  # Collect actual labels
+            all_predictions.extend(predicted.numpy())
+            all_labels.extend(labels.numpy())
 
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
@@ -210,9 +185,7 @@ def evaluate_pytorch_model(model, test_loader):
 
 
 def plot_heatmap(y_true, y_pred, model_name="Model"):
-    """
-    Generates and plots a confusion matrix heatmap for classification performance.
-    """
+
     cm = confusion_matrix(y_true, y_pred)  # Compute confusion matrix
     plt.figure(figsize=(8, 6))
     sns.heatmap(cm, annot=True, fmt="d", cmap="coolwarm", xticklabels=range(10), yticklabels=range(10))
@@ -221,7 +194,6 @@ def plot_heatmap(y_true, y_pred, model_name="Model"):
     plt.title(f"Confusion Matrix - {model_name}")
     plt.show()
 
-    # Print classification report
     print(f"Classification Report for {model_name}:")
     print(classification_report(y_true, y_pred))
 
